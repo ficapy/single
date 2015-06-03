@@ -55,3 +55,8 @@ docs/_build/
 
 # PyBuilder
 target/
+
+#key
+github.key
+
+.idea
