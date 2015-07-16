@@ -33,14 +33,22 @@ for root, dirnames, files in os.walk(dir):
         # http://stackoverflow.com/questions/191359/how-to-convert-a-file-to-utf-8-in-python
         BLOCKSIZE = 1048576  # or some other, desired size in bytes
         if encode:
-            with codecs.open(filepath, "r", encode) as sourceFile:
-                with codecs.open(dst, "w", "utf-8") as targetFile:
-                    while True:
-                        contents = sourceFile.read(BLOCKSIZE)
-                        if not contents:
-                            break
-                        targetFile.write(contents)
-                        # 日了狗了🐶，osx上自带iconv不支持-o参数
-                        # subprocess.call(['iconv', '-f', encode, '-t', 'UTF-8', filepath, '-o', dst],stdout=subprocess.DEVNULL)
+            try:
+                with codecs.open(filepath, "r", encode) as sourceFile:
+                    with codecs.open(dst, "w", "utf-8") as targetFile:
+                        while True:
+                            contents = sourceFile.read(BLOCKSIZE)
+                            if not contents:
+                                break
+                            targetFile.write(contents)
+                            # 日了狗了🐶，osx上自带iconv不支持-o参数
+                            # subprocess.call(['iconv', '-f', encode, '-t', 'UTF-8', filepath, '-o', dst],stdout=subprocess.DEVNULL)
+            except:
+                shutil.copyfile(filepath, dst)
+                print('{file}文件转换错误，识别编码为{encode},确认度为{confidence}'.format(
+                                                                                **{'file':filepath,
+                                                                                   'encode':encode,
+                                                                                   'confidence':detector.result.get('confidence'),
+                                                                                            }))
         else:
             shutil.copyfile(filepath, dst)
