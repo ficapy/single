@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Author: Ficapy
 # Create: '15/7/16'
@@ -26,12 +26,13 @@ for root, dirnames, files in os.walk(dir):
         encode = detector.result.get('encoding')
 
         utf8path = path.dirname(filepath.replace(dir, path.join(dir, 'utf-8')))
+        # 适用于py3,懒得兼容2了
         os.makedirs(utf8path, exist_ok=True)
         dst = path.join(utf8path, file)
 
         shutil.copyfile(filepath, dst)
         if encode:
-            Popen(['iconv','-f',encode,'-t','UTF-8',filepath,'-o',dst],shell=True)
+            Popen(['iconv', '-f', encode, '-t', 'UTF-8', filepath, '-o', dst], shell=True)
 
 
 
