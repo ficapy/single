@@ -76,4 +76,7 @@ def main(limit=300):
 
 
 if __name__ == '__main__':
-    main(limit=300)
+    try:
+        main(limit=300)
+    finally:
+        input('按任意键回车退出...')
