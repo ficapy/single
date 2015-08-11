@@ -6,14 +6,18 @@
 # 压缩所有图片至jpg格式,且限制大小,调用convert(imagemagick)
 
 
-from shutil import copyfile
+import sys
 import os
 from subprocess import call
+from shutil import copyfile
 from os.path import join, dirname, getsize, split, splitext
 
 
 def back_up():
-    for root, _, files in os.walk(dirname(__file__)):
+    for root, dirs, files in os.walk(dirname(__file__)):
+        if 'result' in dirs:
+            print('当前目录已经存在result文件夹，是不是已经操作过一次了?')
+            sys.exit()
         for file in files:
             if join(root, file) != __file__:
                 target_dir = join(join(root.replace(dirname(__file__), join(dirname(__file__), 'result'))))
@@ -22,7 +26,7 @@ def back_up():
 
 
 def resize(file, limit=300):
-    # 不缩放,修改质量大小以K为单位
+    # 不缩放大小,改变文件大小，以K为单位
     file_dir, name = split(file)
     _, file_format = splitext(file)
     file_name, _ = splitext(name)
@@ -39,18 +43,19 @@ def resize(file, limit=300):
     copyfile(file, convert_file)
 
     left, right = 0, 100
-
+    convert_num = 0
     while True:
         if 0 < limit - (getsize(convert_file) / 1024) < 50:
             break
 
         middle = (left + right) / 2
-        if middle < 1:
-            print('{} 压缩失败'.format(file))
-            break
+        convert_num += 1
         # JPEG即使使用100%压缩大小也会变化
-        if middle > 95:
+        if middle < 1 or middle > 98 or convert_num > 9:
+            if getsize(convert_file) / 1024 > limit:
+                print('{} 我去，你这是逆天大文件啊→→压缩失败'.format(file))
             break
+
         call(['convert', '-quality', '{}%'.format(middle), file, convert_file])
 
         if getsize(convert_file) / 1024 > limit:
@@ -62,13 +67,13 @@ def resize(file, limit=300):
     os.rename(convert_file, join(file_dir, file_name + '.jpg'))
 
 
-def main():
+def main(limit=300):
     back_up()
     for root, _, files in os.walk(join(dirname(__file__), 'result')):
         for file in files:
             if splitext(file)[1] in ['.jpg', '.jpeg', '.png']:
-                resize(join(root, file))
+                resize(join(root, file), limit)
 
 
 if __name__ == '__main__':
-    main()
+    main(limit=300)
