@@ -8,19 +8,19 @@
 
 import sys
 import os
-from subprocess import call
 from shutil import copyfile
-from os.path import join, dirname, getsize, split, splitext
+from os.path import join, dirname, getsize, split, splitext, abspath
 
 
 def back_up():
-    for root, dirs, files in os.walk(dirname(__file__)):
+    for root, dirs, files in os.walk(dirname(abspath(__file__))):
         if 'result' in dirs:
             print('当前目录已经存在result文件夹，是不是已经操作过一次了?')
             sys.exit()
         for file in files:
-            if join(root, file) != __file__:
-                target_dir = join(join(root.replace(dirname(__file__), join(dirname(__file__), 'result'))))
+            if join(root, file) != abspath(__file__):
+                target_dir = join(
+                    join(root.replace(dirname(abspath(__file__)), join(dirname(abspath(__file__)), 'result'))))
                 os.makedirs(target_dir, exist_ok=True)
                 copyfile(join(root, file), join(target_dir, file))
 
@@ -35,7 +35,7 @@ def resize(file, limit=300):
     if 'jpg' not in file_format:
         os.rename(file, join(file_dir, file_name + '.jpg'))
         file = join(file_dir, file_name + '.jpg')
-        call(['convert', file, file])
+        os.system(' '.join(['convert', file, file]))
 
     if getsize(file) / 1024 < limit:
         return
@@ -55,8 +55,13 @@ def resize(file, limit=300):
             if getsize(convert_file) / 1024 > limit:
                 print('{} 我去，你这是逆天大文件啊→→压缩失败'.format(file))
             break
+        try:
+            # 使用subprocess在win上会报错
+            os.system(' '.join(['convert', '-quality', '{}%'.format(middle), file, convert_file]))
+        except Exception as e:
+            import logging
 
-        call(['convert', '-quality', '{}%'.format(middle), file, convert_file])
+            logging.exception('{}出错'.format(file), e)
 
         if getsize(convert_file) / 1024 > limit:
             right = middle
@@ -69,7 +74,7 @@ def resize(file, limit=300):
 
 def main(limit=300):
     back_up()
-    for root, _, files in os.walk(join(dirname(__file__), 'result')):
+    for root, _, files in os.walk(join(dirname(abspath(__file__)), 'result')):
         for file in files:
             if splitext(file)[1] in ['.jpg', '.jpeg', '.png']:
                 resize(join(root, file), limit)
