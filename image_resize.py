@@ -35,7 +35,7 @@ def resize(file, limit=300):
     if 'jpg' not in file_format:
         os.rename(file, join(file_dir, file_name + '.jpg'))
         file = join(file_dir, file_name + '.jpg')
-        os.system(' '.join(['convert', file, file]))
+        os.system(' '.join(['convert', '"{}"'.format(file), '"{}"'.format(file)]))
 
     if getsize(file) / 1024 < limit:
         return
@@ -57,7 +57,7 @@ def resize(file, limit=300):
             break
         try:
             # 使用subprocess在win上会报错
-            os.system(' '.join(['convert', '-quality', '{}%'.format(middle), file, convert_file]))
+            os.system(' '.join(['convert', '-quality', '{}%'.format(middle), '"{}"'.format(file), '"{}"'.format(convert_file)]))
         except Exception as e:
             import logging
 
