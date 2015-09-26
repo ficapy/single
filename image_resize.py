@@ -76,7 +76,7 @@ def main(limit=300):
     back_up()
     for root, _, files in os.walk(join(dirname(abspath(__file__)), 'result')):
         for file in files:
-            if splitext(file)[1] in ['.jpg', '.jpeg', '.png']:
+            if splitext(file)[1].lower() in ['.jpg', '.jpeg', '.png']:
                 resize(join(root, file), limit)
 
 
