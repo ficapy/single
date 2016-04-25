@@ -35,7 +35,7 @@ def _filter(file_path):
     home = os.environ['HOME']
     exclude = ['/Applications', path.join(home, 'Applications'), path.join(home, 'Library')]
     for i in exclude:
-        if file_path.startswith(i):
+        if file_path.startswith(i) or file_path.endswith('plist'):
             return True
     return False
 
